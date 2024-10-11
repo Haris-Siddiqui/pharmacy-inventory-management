@@ -46,14 +46,16 @@ export const DashboardComponent = () => {
               </div>
               <div className="w-full border-[#E8E8E8] border flex justify-between flex-col p-4 rounded-lg h-48">
                 <div className="flex flex-col">
-                  <h1 className=" text-2xl  font-bold" 
-                  >Sales Report</h1>
+                  <h1 className=" text-2xl  font-bold">Sales Report</h1>
                   <h2 className="text-[#858B92] text-sm">
                     View and generate sales reports
                   </h2>
                 </div>
                 <div>
-                  <button className=" border hover:bg-black  hover:text-white  border-[#E8E8E8]  p-3 font-semibold rounded-lg" onClick={()=>navigate(`/sales-report`)}>
+                  <button
+                    className=" border hover:bg-black  hover:text-white  border-[#E8E8E8]  p-3 font-semibold rounded-lg"
+                    onClick={() => navigate(`/sales-report`)}
+                  >
                     Sales Report
                   </button>
                 </div>
@@ -70,7 +72,21 @@ export const DashboardComponent = () => {
                     className=" border hover:bg-black  hover:text-white  border-[#E8E8E8]  p-3 font-semibold rounded-lg"
                     onClick={() => navigate(`/retrun-inventory`)}
                   >
-                   Retrun Inventory
+                    Retrun Inventory
+                  </button>
+                </div>
+              </div>
+              <div className="w-full border-[#E8E8E8] border flex justify-between flex-col p-4 rounded-lg h-48">
+                <div className="flex flex-col">
+                  <h1 className=" text-2xl  font-bold">Create New User</h1>
+                  <h2 className="text-[#858B92] text-sm">Create a new user</h2>
+                </div>
+                <div>
+                  <button
+                    className=" border hover:bg-black  hover:text-white  border-[#E8E8E8]  p-3 font-semibold rounded-lg"
+                    onClick={() => navigate(`/create-user`)}
+                  >
+                    Create User
                   </button>
                 </div>
               </div>
