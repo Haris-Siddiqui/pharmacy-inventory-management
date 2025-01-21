@@ -1,134 +1,196 @@
-import React, { useState } from "react";
-import { BiEdit } from "react-icons/bi";
-import { FaEye } from "react-icons/fa";
-import { MdDelete } from "react-icons/md";
+import React, { useEffect, useState } from "react";
+import { FaArrowLeft } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export const SalesReportComponent = () => {
-  const [name, setName] = useState("");
-  const [quantity, setQuantity] = useState(1);
-  const [price, setPrice] = useState(0);
-  //   const [categoryData ,setCategoryData]= useState()
-  const categorData = ["tablet", "injuction", "capsule"];
-  const [isModal, setIsModal] = useState(false);
-  const date = new Date(); // assuming 'd' is a date string or timestamp
-  const formattedDate = date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: '2-digit',
-    day: 'numeric'
-  });
-  const data = [
-    {
-      name: "wall light",
-      categor: "light",
-      price: "400",
-      stock: "50",
+  const [allSales, setAllSales] = useState([]);
+  const [returnProduct, setReturnProduct] = useState([]);
+  const [searchterm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
 
-    },
-    {
-      name: "wall light",
-      categor: "light",
-      price: "400",
-      stock: "50",
-    },
-    {
-      name: "wall light",
-      categor: "light",
-      price: "400",
-      stock: "50",
-    },
-    {
-      name: "wall light",
-      categor: "light",
-      price: "400",
-      stock: "50",
-    },
-    {
-      name: "wall light",
-      categor: "light",
-      price: "400",
-      stock: "50",
-    },
-    {
-      name: "wall light",
-      categor: "light",
-      price: "400",
-      stock: "50",
-    },
-    {
-      name: "wall light",
-      categor: "light",
-      price: "400",
-      stock: "50",
-    },
-    {
-      name: "wall light",
-      categor: "light",
-      price: "400",
-      stock: "50",
-    },
-    {
-      name: "wall light",
-      categor: "light",
-      price: "400",
-      stock: "50",
-    },
-    {
-      name: "wall light",
-      categor: "light",
-      price: "400",
-      stock: "50",
-    },
-  ];
+  const getDailySaleReports = () => {
+    fetch("http://localhost:5001/api/v1/sale/all", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error("Failed to get sales data");
+        }
+      })
+      .then((data) => {
+        setAllSales(data?.data || []);
+      })
+      .catch((error) => {
+        toast.error(error?.message);
+      });
+  };
+  const getReturnProduct = () => {
+    fetch("http://localhost:5001/api/v1/returns", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        if (response.status === 200 || 201) {
+          return response.json();
+        } else {
+          throw new Error("Failed to get product");
+        }
+      })
+      .then((data) => {
+        setReturnProduct(data?.data);
+      })
+      .catch((error) => {
+        toast.error(error?.message);
+      });
+  };
+
+  useEffect(() => {
+    getDailySaleReports();
+    getReturnProduct();
+  }, []);
+
+  const filterData = (data) => {
+    if (!searchterm) return data;
+    return data?.filter((item) =>
+      item?.name?.toLowerCase().includes(searchterm.toLowerCase())
+    );
+  };
+
+  const filteredSales = filterData(allSales);
+  const totalSales = allSales
+    .reduce((sum, sale) => sum + (sale.totalPrice || 0), 0)
+    .toFixed(2);
+
+  const totalReturns = returnProduct
+    .reduce((sum, sale) => sum + (sale.totalReturnPrice || 0), 0)
+    .toFixed(2);
+
+  const netAmount = (totalSales - totalReturns).toFixed(2);
   return (
-    <div className="p-5">
-      <h1 className="text-2xl font-bold">Sales Report</h1>
-      
+    <div className="p-5 space-y-8 bg-[#F3F4F6] min-h-screen">
+      {/* Header */}
+      <div className=" flex w-full">
+        <div
+          className="h-10 w-12 bg-black p-2 rounded-lg cursor-pointer"
+          onClick={() => navigate("/dashboard")}
+        >
+          {" "}
+          <FaArrowLeft className=" text-white  w-full h-full " />
+        </div>
+        <h1 className="text-3xl ml-[40%] font-bold text-center">
+          Sales Report
+        </h1>
+      </div>
 
-
-      <div className="w-full mt-5 flex justify-center items-center ">
+      {/* Search Input */}
+      <div className="flex justify-center">
         <input
-          type="search"
-          className=" w-1/2 p-2 border focus:outline-none cursor-pointer rounded-lg"
-          placeholder="Search..."
+          type="text"
+          value={searchterm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Search by product name..."
+          className="w-full md:w-1/2 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
       </div>
 
-      <table className={`w-full border  border-black mt-5`}>
-        <thead>
-          <tr className=" text-start ">
-            <th className="pb-2">Customer Name</th>
-            <th className="pb-2">Invoice Id</th>
-            <th className="pb-2">Date</th>
-            <th className="pb-2">Price</th>
-            <th className="pb-2">Total</th>
-            <th className="pb-2">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((item) => (
-            <tr className="border-t border-[#232323] shadow-slate-50 ">
-              <th className="text-base  font-normal ">Jhon </th>
-              <th className="text-base  font-normal ">23 </th>
-              <th className="text-base  font-normal ">{formattedDate}</th>
-              <th className="text-base  font-normal">1321</th>
-              <th className="text-base  font-normal">132146</th>
-              <th>
-                <div className="flex justify-center items-center gap-5 ">
-                <FaEye />
-                  <BiEdit
-                    className="cursor-pointer text-lg hover:text-amber-500 "
-                    // onClick={() => edit.setSelectedComponent("editProduct")}
-                  />
-                 
-                  <MdDelete className="cursor-pointer text-lg hover:text-amber-500 " />
-                </div>
-              </th>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-  
+      {/* Sales Summary */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-blue-50 p-4 rounded-lg shadow">
+          <div className="text-blue-600 font-medium">Total Sales Amount</div>
+          <div className="text-2xl font-bold">
+            {allSales
+              .reduce((sum, sale) => sum + (sale.totalPrice || 0), 0)
+              .toFixed(2)}{" "}
+            Rs
+          </div>
+        </div>
+        <div className="bg-green-50 p-4 rounded-lg shadow">
+          <div className="text-blue-600 font-medium">Total Return Amount</div>
+          <div className="text-2xl font-bold">
+            {returnProduct
+              .reduce((sum, sale) => sum + (sale.totalReturnPrice || 0), 0)
+              .toFixed(2)}{" "}
+            Rs
+          </div>
+        </div>
+        {/* <div className="bg-green-50 p-4 rounded-lg shadow">
+          <div className="text-green-600 font-medium">Total Items Sold</div>
+          <div className="text-2xl font-bold">
+            {allSales.reduce((sum, sale) => sum + (sale.product._id?.length || 0), 0)}
+          </div>
+        </div> */}
+        <div className="bg-purple-50 p-4 rounded-lg shadow">
+          <div className="text-purple-600 font-medium">Total Transactions</div>
+          <div className="text-2xl font-bold">{allSales.length}</div>
+        </div>
+        <div className="bg-[#dce2e0] p-4 rounded-lg shadow">
+          <div className="text-font-medium">Total Amount</div>
+          <div className="text-2xl font-bold">{netAmount}</div>
+        </div>
+      </div>
+
+      {/* Recent Sales Table */}
+      <div className="bg-white  shadow">
+        {/* <h2 className="text-xl font-bold mb-4">Recent Sales</h2> */}
+        <div className="overflow-x-auto">
+          <table className="min-w-full border">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="px-4 py-2 border">Customer Name</th>
+                <th className="px-4 py-2 border">Product Name</th>
+                <th className="px-4 py-2 border">QTY</th>
+                <th className="px-4 py-2 border">Date</th>
+                <th className="px-4 py-2 border">Total Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredSales.length > 0 ? (
+                filteredSales.map((sale, index) => (
+                  <tr key={index} className="border-t hover:bg-slate-300 cursor-pointer">
+                    <td className="px-4 py-2 border">
+                      {sale.customerName || "N/A"}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {sale?.product?.name || "N/A"}
+                    </td>
+                    <td className="px-4 py-2 border">
+                      <ul className="list-disc list-inside">
+                        {sale.quantity || "N/A"}
+                      </ul>
+                    </td>
+                    <td className="px-4 py-2 border">
+                      {/* Format the date if available */}
+                      {sale.soldAt
+                        ? new Date(sale.soldAt).toLocaleDateString()
+                        : "N/A"}
+                    </td>
+                    <td className="px-4 py-2 border font-medium">
+                      {sale.totalPrice?.toFixed(2) || "0.00"} Rs
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan="4"
+                    className="text-center py-4 text-gray-500 font-medium"
+                  >
+                    No sales data available.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 };
-
